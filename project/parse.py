@@ -40,24 +40,16 @@ def parseFile():
     wb.save('playerParse.xlsx')
 
 def reformatParse():
-    f = open("errors.txt", "w+")
     wb = load_workbook("playerParse.xlsx")
     for sheet in wb:
-        f.write("******************************* " + sheet.title + " **********************************\n")
         if sheet.title != "Players":
-            # insert column for event letters (ex: AB, BC,... )
             sheet.insert_cols(5, amount=1)
             # if sheet is singles, don't need to worry about partners
             # just need to add reformat columns
             # lastname, firstname, gender, event letter(s), club
-
-
-            # For each row in the sheet, create a player events dictionary
-            # and store the letters of the all events the person is playing
             for row in sheet:
                 playerEvents = {
                     'MS': "",
-
                     'WS': "",
                     'MX': "",
                     'MD': "",
@@ -68,13 +60,10 @@ def reformatParse():
                 # exclude first row
                 if events != ['Events']:
                     for event in events:
-                        # store the last two letters of event in variable string (MD, MX, WD, ...)
+                        # store event letters in player events dictionary
                         string = event[-2:]
-                        # add flight letters to each event in playerEvents dictionary using string as the key
                         playerEvents[string] += event[0]
-                    # store the flights the player is playing for this event in the new events column
                     row[4].value = playerEvents[sheet.title[1:]]
-                # make the title for the events column
                 else:
                     row[4].value = "Events"
                 print(sheet.title)
@@ -89,41 +78,34 @@ def reformatParse():
                 players = {}
                 rowCount = 1
                 for row in sheet:
-                    # skip first row for title
                     if rowCount == 1:
                         rowCount += 1
                         continue
                     # grab entry info for that player
                     entryInfo = row[8].value
-                    # store first name and last name in currentPlayer
                     currentPlayer = row[1].value + " " + row[0].value
                     print("*"*20)
                     print(currentPlayer)
-                    # print("entry info:", entryInfo)
-                    # entry info is not empty, split into an array
+                    print("entry info:", entryInfo)
                     if entryInfo != None:
                         # gets entry info and splits into list per each event
                         entryInfo = entryInfo.split("\n")
-                        print("entry info:", entryInfo)
                         # remove empty string from the last index of list
                         if entryInfo[-1] == "":
                             entryInfo.pop()
                         print("entry info after pop()",entryInfo)
                         # loop through each event in the player's entry entryInfo
-                        # check if the flight is the current event flight
                         # store their partner's name in player dictionary
                         for event in entryInfo:
                             if sheet.title in event:
                                 print("event:",event)
                                 # partnerName contains first and last name
-                                # omit first four characters and last 3 characters
                                 partnerName = event[4:].split(" (")[0]
                                 partnerName = partnerName.split(" ")
-                                # partnerName = event[4:-3].split(" ")
                                 print("partner name:",partnerName)
                                 # stores each player as a key in the dictionary
                                 # values will be a list of lists
-                                # [[partner fn, ln], [club, rowIndex of partner]]
+                                # [[partner, names], [club, rowIndex]]
                                 players[currentPlayer] = []
                                 players[currentPlayer].append([])
                                 for name in partnerName:
@@ -131,11 +113,9 @@ def reformatParse():
                                 club = row[3].value
                                 players[currentPlayer].append([])
                                 players[currentPlayer][1].append(club)
-                                # keep track of where the
                                 players[currentPlayer][1].append(rowCount)
-                    rowCount+=1
                 print(players)
-                # iterate through each row again and check if player is listed in the dictionary as another player's partners
+                # iterate through each row again and check if player is listed in the dictionary another player's partners
                 # if a match is found, append to the first occurence of pair's dictionary, the partner's club name
                 rowCount = 1
                 for row in sheet:
@@ -144,8 +124,7 @@ def reformatParse():
                         continue
                     playerName = row[1].value + " " + row[0].value
                     if playerName not in players:
-                        f.write(playerName + " not found in player dictionary\n")
-                        print(playerName + " not found in player dictionary\n")
+                        print(playerName, "not found in player dictionary")
                         continue
                     # if player's partner in dictionary doesn't have a first name or last name, skip
                     if players[playerName][0][0] == "":
@@ -165,7 +144,7 @@ def reformatParse():
                         playerFnInDict = players[partnerFullName][0][0]
                         playerLnInDict = players[partnerFullName][0][-1]
                         # if playerFnInDict == row[1].value:
-                        # store partner name in excel sheet
+                            # store partner name in excel sheet
                         row[5].value = partnerFullName
                         if players[partnerFullName][1][0] != None:
                             # store partner's club name in excel sheet
@@ -225,7 +204,6 @@ def reformatParse():
 
 
     wb.save("playerList.xlsx")
-    f.close()
 
 
 def main():

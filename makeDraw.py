@@ -139,7 +139,7 @@ def makeDraw():
 
             numRows = len(hfplayers) + len(midplayers) + len(lfplayers)
             print(numRows)
-            # if numPlayers > 32 and numPlayers <  64:
+            # if numPlayers > 32 and numPlayers < 64:
             # number of matches that can be filled on the second round minus pullouts
             if numRows >= 64:
                 oddIndex = [0,15,8,7,4,11,12,3,2,13,10,5,6,9,14,1]

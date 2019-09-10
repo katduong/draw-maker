@@ -1,8 +1,4 @@
-/drawTemplate - Copy.xltx
+*.xlsx
+*.txt
 /example.py
-/makeDraw - Copy.py
-/masterlist.xlsx
-/masterlist1.xlsx
-/masterlistspring.xlsx
-/ms.xlsx
-/ms1.xlsx
+

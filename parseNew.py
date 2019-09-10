@@ -117,14 +117,18 @@ def reformatParse():
                                 print("event:",event)
                                 # partnerName contains first and last name
                                 # omit first four characters and last 3 characters
-                                partnerName = event[4:].split(" (")[0]
+                                # partnerName = event[4:-3]#.split(" ")
+                                partnerName = event[4:].title().split(" (")[0]
                                 partnerName = partnerName.split(" ")
-                                # partnerName = event[4:-3].split(" ")
                                 print("partner name:",partnerName)
                                 # stores each player as a key in the dictionary
                                 # values will be a list of lists
                                 # [[partner fn, ln], [club, rowIndex of partner]]
+                                # players[currentPlayer] = []
                                 players[currentPlayer] = []
+                                # players[currentPlayer].append([])
+                                # for name in partnerName:
+                                    # players[currentPlayer][0].append(name)
                                 players[currentPlayer].append([])
                                 for name in partnerName:
                                     players[currentPlayer][0].append(name)
@@ -138,6 +142,7 @@ def reformatParse():
                 # iterate through each row again and check if player is listed in the dictionary as another player's partners
                 # if a match is found, append to the first occurence of pair's dictionary, the partner's club name
                 rowCount = 1
+                partnerDict = {}
                 for row in sheet:
                     if rowCount == 1:
                         rowCount += 1
@@ -146,14 +151,18 @@ def reformatParse():
                     if playerName not in players:
                         f.write(playerName + " not found in player dictionary\n")
                         print(playerName + " not found in player dictionary\n")
+                        rowCount += 1
                         continue
                     # if player's partner in dictionary doesn't have a first name or last name, skip
                     if players[playerName][0][0] == "":
+                        f.write(playerName + " left their partner blank\n")
+                        rowCount += 1
                         continue
                     #  check if player's partner only has a first name listed
                     elif players[playerName][0][-1] == players[playerName][0][0]:
                         partnerfn = players[playerName][0][0]
-                        partnerFullName = partnerfn
+                        f.write("Check " + playerName + "'s partner " + partnerfn + "\n")
+                        # partnerFullName = partnerfn
                     #  otherwise, we know their partner has a first and last name
                     else:
                         partnerfn = players[playerName][0][0]
@@ -170,60 +179,21 @@ def reformatParse():
                         if players[partnerFullName][1][0] != None:
                             # store partner's club name in excel sheet
                             row[6].value = players[partnerFullName][1][0]
-                        # elif playerLnInDict == row[0].value:
-                        #     row[5].value = partnerFullName
-                        #     if players[partnerFullName][1][0] != None:
-                        #         # store partner's club name in excel sheet
-                        #         row[6].value = players[partnerFullName][1][0]
-
-
-
-
-                    # if partnerFullName:
-                    #     print(partnerFullName)
-                    # for key in players:
-                    #     if key == partner
-                    #     playerFnInDict = player[key][0][0]
-                    #     playerLnInDict = player[key][0][-1]
-                    #     if partnerfn == playerFnInDict:
-
-
+                        # store row number of partner and row number of player in dictionary so that we can delete the row later
+                        if not rowCount in partnerDict.values():
+                            partnerDict[rowCount] = players[partnerFullName][1][-1]
+                    # partner name has fn and ln but spelled incorrectly
+                    else:
+                        f.write(playerName + " spelled their partner's name incorrectly: " + partnerFullName + "\n")
                     rowCount += 1
+                #     rowCount += 1
+                print(partnerDict)
 
-                            #     partner = players.get(partnerName)
-                            #     if partner != None:
-                            #         partner = partner[0].split(" ")[0]
-                            # else:
-                            #     continue
-                            # if partner != None:
-                            #     print("partner in dictionary",partner)
-                            # # if row[1].value in players.values():
-                            # if partner != None and partner == row[1].value:
-                            #     print("row[1].value: ", row[1].value, " ==", partner )
-                            #
-                            #     # insert partner's club name into dictionary
-                            #     print("partner's clubname: ", row[3].value, partner)
-                            #     players[partnerName].append(row[3].value)
-                            #     sheet[players[partnerName]][5].value = players[partnerName][1]
-                            #     # row[5].value = players[partnerName][1]
-                            #     if players[partnerName][2]:
-                            #         # row[6].value = players[partnerName][2]
-                            #         sheet[players[partnerName][0]][6].value = players[partnerName][2]
-                            #     print("player key:",players[partnerName][1])
-                            #     # sheet.delete_rows(rowCount,1)
-                            # else:
-                            #     # store the first occurence of a pair in the dictionary
-                            #     players[row[1].value + " " + row[0].value] = []
-                            #     # players[row[1].value + " "  + row[0].value].append(rowCount)
-                            #     players[row[1].value + " " + row[0].value].append(partnerName)
-                            #
-                    rowCount += 1
-                    # index = entryInfo.find(sheet.title)
-                    # partnerIndex = index += 4
-                    # print(partnerIndex)
-                    # partnerName = entryInfo[partnerIndex:]
-
-
+                # loop through items in dictionary and delete corresponding row
+                # also delete other pair in dictionary
+                for playerRow, partnerRow in sorted(partnerDict.items(), reverse=True):
+                    print("deleting row", playerRow)
+                    sheet.delete_rows(playerRow)
     wb.save("playerList.xlsx")
     f.close()
 
